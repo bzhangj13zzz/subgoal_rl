@@ -1,14 +1,14 @@
 # ======= Main
 # PY_ENV = "/home/james/miniconda3/envs/sg_minigrid/bin/python"
 PY_ENV = "/Users/bowenzhang/miniconda3/envs/subgoal_rl/bin/python"
-SEED = 1337
-EPISODES = 500
-HORIZON = 5000
+SEED = 1
+EPISODES = 10000
+HORIZON = 100
 LOAD_MODEL = False
 BATCH_SIZE = 200
 SAVE_MODEL = 100
 AGENT_NAME = "random"
-# AGENT_NAME = "vpg"
+AGENT_NAME = "vpg"
 SHOULD_LOG = 100
 
 # ===== Enviroment

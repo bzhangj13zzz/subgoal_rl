@@ -2,6 +2,7 @@ import math
 import hashlib
 import gym
 from enum import IntEnum
+from gym.spaces import space
 import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
@@ -690,15 +691,16 @@ class MiniGridEnv(gym.Env):
 
         # -------- State Tiles (James)
         self.infos = {}
-        self.tile_state = np.zeros((GRID, GRID), dtype=np.int)
+        self.tile_state = np.zeros((GRID, GRID, 4), dtype=np.int)
         state_id = 0
         for i in range(GRID):
             for j in range(GRID):
-                self.tile_state[i][j] = state_id
-                state_id += 1
+                for k in range(4):
+                    self.tile_state[i][j][k] = state_id
+                    state_id += 1
 
         # ---- One hot
-        self.one_hot = get_one_hot(GRID*GRID)
+        self.one_hot = get_one_hot(GRID*GRID*4)
 
 
 
@@ -712,7 +714,8 @@ class MiniGridEnv(gym.Env):
         self.actions = MiniGridEnv.Actions
 
         # Actions are discrete integer values
-        self.action_space = spaces.Discrete(len(self.actions))
+        # self.action_space = spaces.Discrete(len(self.actions))
+        self.action_space = spaces.Discrete(3)
 
         # Number of cells (width and height) in the agent view
         assert agent_view_size % 2 == 1
@@ -733,8 +736,9 @@ class MiniGridEnv(gym.Env):
             })
         else:
             # ---- James Grid space
-            self.observation_space = spaces.Discrete(GRID * GRID)
+            # self.observation_space = spaces.Discrete(GRID * GRID)
             # self.observation_space = spaces.Dict({'grid': self.observation_space})
+            self.observation_space = spaces.Tuple((spaces.Discrete(GRID), spaces.Discrete(GRID), spaces.Discrete(4)))
 
             # ---- James Grid onehot space
             # self.observation_space =  OneHotEncoding(size=GRID*GRID)
@@ -796,9 +800,11 @@ class MiniGridEnv(gym.Env):
         if IMAGE_OBS:
             obs = self.gen_obs()
         else:
-            obs = self.agent_pos
-            x, y = obs
-            obs = self.tile_state[(x, y)]
+            obs = (self.agent_pos[0], self.agent_pos[1], self.agent_dir)
+
+            # obs = self.agent_pos
+            # x, y = obs
+            # obs = self.tile_state[(x, y, self.agent_dir)]
 
             # --- One hot
             # obs = self.one_hot[obs]
@@ -1266,7 +1272,7 @@ class MiniGridEnv(gym.Env):
         if IMAGE_OBS:
             obs = self.gen_obs()
         else:
-            obs = self.agent_pos
+            obs = (self.agent_pos, self.agent_dir)
 
             # info.update({"obs_disc":obs})
 
@@ -1346,7 +1352,7 @@ class MiniGridEnv(gym.Env):
 
         return img
 
-    def render(self, mode='human', close=False, highlight=True, tile_size=TILE_PIXELS):
+    def render(self, mode='rgb_array', close=False, highlight=True, tile_size=TILE_PIXELS):
         """
         Render the whole-grid human view
         """

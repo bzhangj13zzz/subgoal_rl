@@ -350,7 +350,7 @@ class TwoRoomsEnv(MiniGridEnv):
         self._agent_default_pos = np.array([x, y])#agent_pos
         self._goal_default_pos = goal_pos
 
-        super().__init__(grid_size=GRID, max_steps=100)
+        super().__init__(grid_size=GRID, max_steps=500)
 
     def _gen_grid(self, width, height):
 
@@ -440,8 +440,9 @@ class TwoRoomsEnv(MiniGridEnv):
         if IMAGE_OBS:
             return obs, reward, done, info
         else:
-            x, y = obs
-            obs = self.tile_state[(x, y)]
+            (x, y), dir = obs
+            obs = (x, y, dir)
+            # obs = self.tile_state[(x, y, dir)]
             # --- One hot
             # obs = self.one_hot[obs]
             info.update({"obs_disc":obs})
